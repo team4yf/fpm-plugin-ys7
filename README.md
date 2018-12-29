@@ -9,6 +9,17 @@ npm add fpm-plugin-ys7 --save
 ### Useage
 
 - config
+```javascript
+{
+  "ys7": {
+    "apps": [
+      "appid": 1,
+      "appkey": "",
+      "appsecret": ""
+    ]
+  }
+}
+```
 
 - subscribe
 
