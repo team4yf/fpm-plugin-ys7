@@ -4,6 +4,8 @@
   https://open.ys7.com/doc/zh/book/index/device_option.html#device_option-api1
  */
 const request = require('superagent');
+const assert = require('assert');
+const debug = require('debug')('fpm-plugin-ys7');
 
 const _ = require('lodash');
 
@@ -27,9 +29,7 @@ const setAppkey = (appid, appkey, appsecret) => {
 const getAccessToken = async ( appid ) => {
 
   const auth = AUTH_CACHE[appid];
-  if(!auth){
-    return Promise.reject({ message: 'appid havent be setted!'});
-  }
+  assert(!!auth, 'appid havent be setted!');
   const { appkey, appsecret } = auth;
 
   let token = auth.token;
@@ -49,7 +49,8 @@ const getAccessToken = async ( appid ) => {
       AUTH_CACHE[appid] = auth;
       return auth.token;
   }catch(e){
-    return Promise.reject(e);
+    debug('[ERROR] getAccessToken Error %O', e)
+    return Promise.reject({ errno: -1, message: 'get access token error!', error: e });
   }
   
 }
@@ -71,6 +72,7 @@ const callApi = async (url, args) => {
     }
     return rsp.body;
   }catch(e){
+    debug('[ERROR] callApi Error %O', e)
     return Promise.reject(e);
   }
 }
@@ -79,16 +81,17 @@ const Openys7BizBuilder = fpm => {
   return {
     setAppkey: args => {
       // add the appkey to the pool
-      
       const { appkey, appsecret, appid } = args;
-      if(!(appid))
-        return Promise.reject({ errno: -7, message: 'appid required'});
-      if(_.isEmpty(appkey))
-        return Promise.reject({ errno: -7, message: 'appkey required'});
-      if(_.isEmpty(appsecret))
-        return Promise.reject({ errno: -7, message: 'appsecret required'});
-      setAppkey(appid, appkey, appsecret);
-      return Promise.resolve(1);
+      try {
+        assert(!!appid, 'appid required');
+        assert(!!appsecret, 'appsecret required');
+        assert(!!appkey, 'appkey required');
+        setAppkey(appid, appkey, appsecret);
+        return 1;
+      } catch (error) {
+        return Promise.reject({ errno: -7, message: error.message });
+      }
+      
     },
     bind: async args => {
       // should disable the encrypt
@@ -99,7 +102,11 @@ const Openys7BizBuilder = fpm => {
         // store the info
         return data;
       } catch (error) {
+        debug('[ERROR] bind Error %O', error)
         let { errno } = error;
+        if(isNaN(errno)){
+          return Promise.reject(error);
+        }
         errno = Math.abs( errno );
         if(errno == 60016){
           // 加密未开启，无需关闭
@@ -133,13 +140,14 @@ const Openys7BizBuilder = fpm => {
     control: async args => {
       try{
         let data = await callApi('device/capacity', args );
-        console.log(data)
+        debug('the capacity of the device: %O', data);
         if(data.data.support_ptz == '0'){
           // not support control
           return Promise.reject({ code: -60000, message: '设备不支持云台控制' });
         }
         return callApi('device/ptz/start', args );
       } catch (error) {
+        debug('[ERROR] control Error %O', error)
         return Promise.reject(error);
       }
       

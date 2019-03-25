@@ -1,4 +1,3 @@
-require("chai").should();
 const fpmc = require("fpmc-jssdk");
 const assert = require('assert');
 const { Func, init } = fpmc;
@@ -21,7 +20,8 @@ describe('ys7 Biz Test Unit', function(){
     const func = new Func('ys7.list');
     func.invoke({ appid: 22 })
       .then(function(data){
-        data.code.should.equal('200');
+        assert(data.code == '200');
+        console.log(data)
         done();
       }).catch(function(err){
         done(err);
@@ -32,7 +32,7 @@ describe('ys7 Biz Test Unit', function(){
     const func = new Func('ys7.unbind');
     func.invoke({ deviceSerial: '165933667' })
       .then(function(data){
-        data.code.should.equal('200');
+        assert(data.code == '200');
         done();
       }).catch(function(err){
         done(err);
@@ -42,7 +42,7 @@ describe('ys7 Biz Test Unit', function(){
     const func = new Func('ys7.bind');
     func.invoke({ appid: 22, deviceSerial: '165933667', validateCode: 'DYLQJU' })
       .then(function(data){
-        data.code.should.equal('200');
+        assert(data.code == '200');
         done();
       }).catch(function(err){
         done(err);
@@ -52,7 +52,7 @@ describe('ys7 Biz Test Unit', function(){
     const func = new Func('ys7.live');
     func.invoke({ appid: 22, source: '165933667:1'})
       .then(function(data){
-        data.code.should.equal('200');
+        assert(data.code == '200');
         console.log(data.data)
         done();
       }).catch(function(err){
@@ -64,7 +64,7 @@ describe('ys7 Biz Test Unit', function(){
     const func = new Func('ys7.disableEncrypt');
     func.invoke({ deviceSerial: '165933667', validateCode: 'DYLQJU' })
       .then(function(data){
-        data.code.should.equal('200');
+        assert(data.code == '200');
         console.log(data.data)
         done();
       }).catch(function(err){
@@ -83,7 +83,7 @@ describe('ys7 Biz Test Unit', function(){
       speed: 1,
     })
       .then(function(data){
-        data.code.should.equal('200');
+        assert(data.code == '200');
         done();
       }).catch(function(err){
         done(err);
@@ -100,7 +100,7 @@ describe('ys7 Biz Test Unit', function(){
       direction: 11,
     })
       .then(function(data){
-        data.code.should.equal('200');
+        assert(data.code == '200');
         done();
       }).catch(function(err){
         done(err);
@@ -114,7 +114,7 @@ describe('ys7 Biz Test Unit', function(){
       deviceSerial: 'C54938441',
     })
       .then(function(data){
-        data.code.should.equal('200');
+        assert(data.code == '200');
         done();
       }).catch(function(err){
         done(err);

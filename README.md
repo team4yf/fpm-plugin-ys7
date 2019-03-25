@@ -24,3 +24,7 @@ npm add fpm-plugin-ys7 --save
 - subscribe
 
 - other
+
+### DEBUG
+
+`DEBUG=fpm-plugin-ys7 npm run dev`
