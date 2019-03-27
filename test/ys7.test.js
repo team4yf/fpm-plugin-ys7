@@ -1,4 +1,4 @@
-require("chai").should();
+const assert = require('assert');
 const request = require('superagent');
 
 
@@ -21,6 +21,22 @@ describe('Open.ys7.com', function(){
         console.error(e);
         done(e);
       })
+  })
+
+  after( async () => {
+    try {
+      const rsp = await request.post('https://open.ys7.com/api/lapp/device/delete')
+      .send({
+        accessToken: auth.accessToken,
+        deviceSerial: '166246114',
+        validateCode: 'PNHDRL',
+      })
+      .type('application/x-www-form-urlencoded');
+
+      console.log(rsp)
+    } catch (error) {
+      throw error;
+    }
   })
   // it('get the accessToken', function(done){
   //   request.post('https://open.ys7.com/api/lapp/token/get')
@@ -78,8 +94,8 @@ describe('Open.ys7.com', function(){
     request.post('https://open.ys7.com/api/lapp/device/encrypt/off')
       .send({
         accessToken: auth.accessToken,
-        deviceSerial: 'C52249255',
-        validateCode: 'YZRCWL',
+        deviceSerial: 'C18894186',
+        validateCode: 'CJOESC',
       })
       .type('application/x-www-form-urlencoded')
       .then(function( data ) {
@@ -100,7 +116,7 @@ describe('Open.ys7.com', function(){
       })
       .type('application/x-www-form-urlencoded')
       .then(function( data ) {
-        data.body.data.length.should.equal(1);
+        assert(data.body.data.length == 1);
         console.log(data);
         done();
       }).catch(function(e){
@@ -118,7 +134,7 @@ describe('Open.ys7.com', function(){
       })
       .type('application/x-www-form-urlencoded')
       .then(function( data ) {
-        data.body.code.should.equal('200');
+        assert(data.body.code == '200');
         
         console.log(data.body.data)
         done();
@@ -142,7 +158,7 @@ describe('Open.ys7.com', function(){
       .type('application/x-www-form-urlencoded')
       .then(function( data ) {
         console.log(data.body)
-        data.body.code.should.equal('200');
+        assert(data.body.code == '200');
         done();
       }).catch(function(e){
         console.error(e);
@@ -164,7 +180,7 @@ describe('Open.ys7.com', function(){
       .type('application/x-www-form-urlencoded')
       .then(function( data ) {
         console.log(data.body)
-        data.body.code.should.equal('200');
+        assert(data.body.code =='200');
         done();
       }).catch(function(e){
         console.error(e);

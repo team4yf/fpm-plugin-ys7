@@ -137,6 +137,9 @@ const Openys7BizBuilder = fpm => {
     disableEncrypt: async args => {
       return callApi('device/encrypt/off', args );
     },
+    enableEncrypt: async args => {
+      return callApi('device/encrypt/on', args );
+    },
     control: async args => {
       try{
         let data = await callApi('device/capacity', args );
