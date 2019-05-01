@@ -96,11 +96,9 @@ const Openys7BizBuilder = fpm => {
     bind: async args => {
       // should disable the encrypt
       let data;
+      // 1. add the device
       try{
-        data = await callApi('device/add', args );
-        await callApi('device/encrypt/off', args );
-        // store the info
-        return data;
+        await callApi('device/add', args );
       } catch (error) {
         debug('[ERROR] bind Error %O', error)
         let { errno } = error;
@@ -108,22 +106,60 @@ const Openys7BizBuilder = fpm => {
           return Promise.reject(error);
         }
         errno = Math.abs( errno );
-        if(errno == 60016){
-          // 加密未开启，无需关闭
-          
-        }else if(errno == 20017){
+        if(errno == 20017){
           // 已添加
-
         }else{
           return Promise.reject(error);
         }
         
       }
+      // 2. get the device info
+      try {
+        data = await callApi('device/info', args);
+        debug('device info: %O', data);
+        if(data.data.isEncrypt !== 0){
+          // 2.1 disable encrypt if the stream is encrypted
+          await callApi('device/encrypt/off', args );
+        }
+      } catch (error) {
+        debug('[ERROR] off encrypt Error %O', error)
+        return Promise.reject(error);
+      }
+      try {
+        // 3. open the live 
+        await callApi('live/video/open', _.assign({ source: `${args.deviceSerial}:${ args.channelNo || '1'}` }, args) );
+      } catch (error) {
+        debug('[ERROR] open video Error %O', error)
+        return Promise.reject(error);
+      }
       
-      return { code: '200', message: 'OK' };
+      return { code: '200', message: 'OK', data: data.data };
+    },
+    callApi: async args => {
+      const { url, params } = args;
+      try {
+        assert(!!url, 'api url required');
+        assert(!!params, 'api params required');
+        return await callApi( url, params );
+      } catch (error) {
+        return Promise.reject(error);
+      }
+      
     },
     list: async args => {
       return callApi('device/list', args );
+    },
+    info: async args => {
+      try {
+        const data = await callApi('device/info', args);  
+        return data;
+      } catch (error) {
+        if(error.errno === '20018'){
+          return { code: '20018', message: '该用户不拥有该设备' };
+        }
+        return Promise.reject(error);
+      }
+      
     },
     lives: async args => {
       return callApi('live/video/list', args );
@@ -148,7 +184,7 @@ const Openys7BizBuilder = fpm => {
           // not support control
           return Promise.reject({ code: -60000, message: '设备不支持云台控制' });
         }
-        return callApi('device/ptz/start', args );
+        return await callApi('device/ptz/start', args );
       } catch (error) {
         debug('[ERROR] control Error %O', error)
         return Promise.reject(error);
