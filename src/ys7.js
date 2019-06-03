@@ -196,7 +196,18 @@ const Openys7BizBuilder = fpm => {
     },
     capacity: async args => {
       return callApi('device/capacity', args );
-    }
+    },
+
+    // 预置点相关接口
+    presetAdd: async args => {
+      return callApi('device/preset/add', args );
+    },
+    presetMove: async args => {
+      return callApi('device/preset/move', args );
+    },
+    presetClear: async args => {
+      return callApi('device/preset/clear', args );
+    },
   }
 }
 
